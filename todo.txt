@@ -1,5 +1,4 @@
-CollisionMap.method101
-CollisionMap.method102
-CollisionMap.method103
-
-That's it!
+<b>uragay</b>
+<i>uragay</i>
+<u>uragay</u>
+<s>uragay</s>
