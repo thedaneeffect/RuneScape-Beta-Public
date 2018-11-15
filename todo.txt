@@ -1,4 +1,1 @@
-<b>uragay</b>
-<i>uragay</i>
-<u>uragay</u>
-<s>uragay</s>
+.
