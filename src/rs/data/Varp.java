@@ -11,7 +11,7 @@ public class Varp {
 
 	public static void load(Archive a) {
 		Buffer b = new Buffer(a.get("varp.dat", null));
-		total = b.getUShort();
+		total = b.get2U();
 
 		if (instance == null) {
 			instance = new Varp[total];
@@ -27,14 +27,14 @@ public class Varp {
 
 	public void read(Buffer b) {
 		for (;;) {
-			int opcode = b.getUByte();
+			int opcode = b.get1U();
 
 			if (opcode == 0) {
 				break;
 			}
 
 			if (opcode == 5) {
-				type = b.getUShort();
+				type = b.get2U();
 			} else {
 				System.out.println("Error unrecognised config code: " + opcode);
 			}

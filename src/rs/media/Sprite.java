@@ -6,7 +6,7 @@ import rs.io.Buffer;
 import java.awt.*;
 import java.awt.image.PixelGrabber;
 
-public class Sprite extends Graphics2D {
+public class Sprite extends Draw2D {
 
 	public int[] pixels;
 	public int width;
@@ -46,15 +46,15 @@ public class Sprite extends Graphics2D {
 	public Sprite(Archive archive, String name, int index) {
 		Buffer dat = new Buffer(archive.get(name + ".dat", null));
 		Buffer idx = new Buffer(archive.get("index.dat", null));
-		idx.position = dat.getUShort();
+		idx.position = dat.get2U();
 
-		clipWidth = idx.getUShort();
-		clipHeight = idx.getUShort();
+		clipWidth = idx.get2U();
+		clipHeight = idx.get2U();
 
-		int[] palette = new int[idx.getUByte()];
+		int[] palette = new int[idx.get1U()];
 
 		for (int i = 0; i < palette.length - 1; i++) {
-			palette[i + 1] = idx.getInt24();
+			palette[i + 1] = idx.get3();
 			if (palette[i + 1] == 0) {
 				palette[i + 1] = 1;
 			}
@@ -62,77 +62,77 @@ public class Sprite extends Graphics2D {
 
 		for (int i = 0; i < index; i++) {
 			idx.position += 2;
-			dat.position += (idx.getUShort() * idx.getUShort());
+			dat.position += (idx.get2U() * idx.get2U());
 			idx.position++;
 		}
 
-		clipX = idx.getUByte();
-		clipY = idx.getUByte();
-		width = idx.getUShort();
-		height = idx.getUShort();
+		clipX = idx.get1U();
+		clipY = idx.get1U();
+		width = idx.get2U();
+		height = idx.get2U();
 
-		int type = idx.getUByte();
+		int type = idx.get1U();
 		int len = width * height;
 		pixels = new int[len];
 
 		if (type == 0) {
 			for (int i = 0; i < len; i++) {
-				pixels[i] = palette[dat.getUByte()];
+				pixels[i] = palette[dat.get1U()];
 			}
 		} else if (type == 1) {
 			for (int x = 0; x < width; x++) {
 				for (int y = 0; y < height; y++) {
-					pixels[x + y * width] = palette[dat.getUByte()];
+					pixels[x + y * width] = palette[dat.get1U()];
 				}
 			}
 		}
 	}
 
 	public void prepare() {
-		Graphics2D.prepare(pixels, width, height);
+		Draw2D.prepare(pixels, width, height);
 	}
 
 	public void drawOpaque(int x, int y) {
 		x += clipX;
 		y += clipY;
 
-		int dstOff = x + y * Graphics2D.dstWidth;
+		int dstOff = x + y * Draw2D.dstWidth;
 		int srcOff = 0;
 		int h = height;
 		int w = width;
-		int dstStep = Graphics2D.dstWidth - w;
+		int dstStep = Draw2D.dstWidth - w;
 		int srcStep = 0;
 
-		if (y < Graphics2D.top) {
-			int cutoff = Graphics2D.top - y;
+		if (y < Draw2D.top) {
+			int cutoff = Draw2D.top - y;
 			h -= cutoff;
-			y = Graphics2D.top;
+			y = Draw2D.top;
 			srcOff += cutoff * w;
-			dstOff += cutoff * Graphics2D.dstWidth;
+			dstOff += cutoff * Draw2D.dstWidth;
 		}
 
-		if (y + h > Graphics2D.bottom) {
-			h -= y + h - Graphics2D.bottom;
+		if (y + h > Draw2D.bottom) {
+			h -= y + h - Draw2D.bottom;
 		}
 
-		if (x < Graphics2D.left) {
-			int cutoff = Graphics2D.left - x;
+		if (x < Draw2D.left) {
+			int cutoff = Draw2D.left - x;
 			w -= cutoff;
-			x = Graphics2D.left;
+			x = Draw2D.left;
 			srcOff += cutoff;
 			dstOff += cutoff;
 			srcStep += cutoff;
 			dstStep += cutoff;
 		}
-		if (x + w > Graphics2D.right) {
-			int i_22_ = x + w - Graphics2D.right;
+		if (x + w > Draw2D.right) {
+			int i_22_ = x + w - Draw2D.right;
 			w -= i_22_;
 			srcStep += i_22_;
 			dstStep += i_22_;
 		}
 
 		if (w > 0 && h > 0) {
-			copyImage(w, h, pixels, srcOff, srcStep, Graphics2D.dst, dstOff, dstStep);
+			copyImage(w, h, pixels, srcOff, srcStep, Draw2D.dst, dstOff, dstStep);
 		}
 	}
 
@@ -161,44 +161,44 @@ public class Sprite extends Graphics2D {
 		x += clipX;
 		y += clipY;
 
-		int dstOff = x + y * Graphics2D.dstWidth;
+		int dstOff = x + y * Draw2D.dstWidth;
 		int srcOff = 0;
 		int w = width;
 		int h = height;
-		int dstStep = Graphics2D.dstWidth - w;
+		int dstStep = Draw2D.dstWidth - w;
 		int srcStep = 0;
 
-		if (y < Graphics2D.top) {
-			int cutoff = Graphics2D.top - y;
+		if (y < Draw2D.top) {
+			int cutoff = Draw2D.top - y;
 			h -= cutoff;
-			y = Graphics2D.top;
+			y = Draw2D.top;
 			srcOff += cutoff * w;
-			dstOff += cutoff * Graphics2D.dstWidth;
+			dstOff += cutoff * Draw2D.dstWidth;
 		}
 
-		if (y + h > Graphics2D.bottom) {
-			h -= y + h - Graphics2D.bottom;
+		if (y + h > Draw2D.bottom) {
+			h -= y + h - Draw2D.bottom;
 		}
 
-		if (x < Graphics2D.left) {
-			int cutoff = Graphics2D.left - x;
+		if (x < Draw2D.left) {
+			int cutoff = Draw2D.left - x;
 			w -= cutoff;
-			x = Graphics2D.left;
+			x = Draw2D.left;
 			srcOff += cutoff;
 			dstOff += cutoff;
 			srcStep += cutoff;
 			dstStep += cutoff;
 		}
 
-		if (x + w > Graphics2D.right) {
-			int cutoff = x + w - Graphics2D.right;
+		if (x + w > Draw2D.right) {
+			int cutoff = x + w - Draw2D.right;
 			w -= cutoff;
 			srcStep += cutoff;
 			dstStep += cutoff;
 		}
 
 		if (w > 0 && h > 0) {
-			copyImage(h, w, pixels, srcOff, srcStep, Graphics2D.dst, dstOff, dstStep, 0);
+			copyImage(h, w, pixels, srcOff, srcStep, Draw2D.dst, dstOff, dstStep, 0);
 		}
 	}
 
@@ -259,44 +259,44 @@ public class Sprite extends Graphics2D {
 		x += clipX;
 		y += clipY;
 
-		int dstOff = x + y * Graphics2D.dstWidth;
+		int dstOff = x + y * Draw2D.dstWidth;
 		int srcOff = 0;
 		int w = width;
 		int h = height;
-		int dstStep = Graphics2D.dstWidth - w;
+		int dstStep = Draw2D.dstWidth - w;
 		int srcStep = 0;
 
-		if (y < Graphics2D.top) {
-			int cutoff = Graphics2D.top - y;
+		if (y < Draw2D.top) {
+			int cutoff = Draw2D.top - y;
 			h -= cutoff;
-			y = Graphics2D.top;
+			y = Draw2D.top;
 			srcOff += cutoff * w;
-			dstOff += cutoff * Graphics2D.dstWidth;
+			dstOff += cutoff * Draw2D.dstWidth;
 		}
 
-		if (y + h > Graphics2D.bottom) {
-			h -= y + h - Graphics2D.bottom;
+		if (y + h > Draw2D.bottom) {
+			h -= y + h - Draw2D.bottom;
 		}
 
-		if (x < Graphics2D.left) {
-			int cutoff = Graphics2D.left - x;
+		if (x < Draw2D.left) {
+			int cutoff = Draw2D.left - x;
 			w -= cutoff;
-			x = Graphics2D.left;
+			x = Draw2D.left;
 			srcOff += cutoff;
 			dstOff += cutoff;
 			srcStep += cutoff;
 			dstStep += cutoff;
 		}
 
-		if (x + w > Graphics2D.right) {
-			int cutoff = x + w - Graphics2D.right;
+		if (x + w > Draw2D.right) {
+			int cutoff = x + w - Draw2D.right;
 			w -= cutoff;
 			srcStep += cutoff;
 			dstStep += cutoff;
 		}
 
 		if (w > 0 && h > 0) {
-			copyImage(w, h, pixels, srcOff, srcStep, Graphics2D.dst, dstOff, dstStep, alpha, 0);
+			copyImage(w, h, pixels, srcOff, srcStep, Draw2D.dst, dstOff, dstStep, alpha, 0);
 		}
 	}
 
@@ -328,7 +328,7 @@ public class Sprite extends Graphics2D {
 			int originX = (pivotX << 16) - ((cy * sin) + (cx * cos));
 			int originY = (pivotY << 16) - ((cy * cos) - (cx * sin));
 
-			int origin = x + (y * Graphics2D.dstWidth);
+			int origin = x + (y * Draw2D.dstWidth);
 
 			for (y = 0; y < h; y++) {
 				int start = lineStart[y];
@@ -338,14 +338,14 @@ public class Sprite extends Graphics2D {
 				int srcY = originY - (sin * start);
 
 				for (x = 0; x < lineWidth[y]; x++) {
-					Graphics2D.dst[dstOff++] = pixels[(srcX >> 16) + (srcY >> 16) * width];
+					Draw2D.dst[dstOff++] = pixels[(srcX >> 16) + (srcY >> 16) * width];
 					srcX += cos;
 					srcY -= sin;
 				}
 
 				originX += sin;
 				originY += cos;
-				origin += Graphics2D.dstWidth;
+				origin += Draw2D.dstWidth;
 			}
 		} catch (Exception ignored) {
 		}
@@ -361,7 +361,7 @@ public class Sprite extends Graphics2D {
 
 			int originX = (anchorx << 16) + ((centerY * sin) + (centerX * cos));
 			int originY = (anchory << 16) + ((centerY * cos) - (centerX * sin));
-			int origin = x + (y * Graphics2D.dstWidth);
+			int origin = x + (y * Draw2D.dstWidth);
 
 			for (y = 0; y < h; y++) {
 				int dstOff = origin;
@@ -372,7 +372,7 @@ public class Sprite extends Graphics2D {
 					int rgb = pixels[(srcX >> 16) + (srcY >> 16) * width];
 
 					if (rgb != 0) {
-						Graphics2D.dst[dstOff++] = rgb;
+						Draw2D.dst[dstOff++] = rgb;
 					} else {
 						dstOff++;
 					}
@@ -381,7 +381,7 @@ public class Sprite extends Graphics2D {
 				}
 				originX += sin;
 				originY += cos;
-				origin += Graphics2D.dstWidth;
+				origin += Draw2D.dstWidth;
 			}
 		} catch (Exception ignored) {
 		}
@@ -391,45 +391,45 @@ public class Sprite extends Graphics2D {
 		x += clipX;
 		y += clipY;
 
-		int dstOff = x + y * Graphics2D.dstWidth;
+		int dstOff = x + y * Draw2D.dstWidth;
 		int srcOff = 0;
 
 		int h = height;
 		int w = width;
 
-		int dstStep = Graphics2D.dstWidth - w;
+		int dstStep = Draw2D.dstWidth - w;
 		int srcStep = 0;
 
-		if (y < Graphics2D.top) {
-			int i = Graphics2D.top - y;
+		if (y < Draw2D.top) {
+			int i = Draw2D.top - y;
 			h -= i;
-			y = Graphics2D.top;
+			y = Draw2D.top;
 			srcOff += i * w;
-			dstOff += i * Graphics2D.dstWidth;
+			dstOff += i * Draw2D.dstWidth;
 		}
 
-		if (y + h > Graphics2D.bottom) {
-			h -= y + h - Graphics2D.bottom;
+		if (y + h > Draw2D.bottom) {
+			h -= y + h - Draw2D.bottom;
 		}
 
-		if (x < Graphics2D.left) {
-			int i = Graphics2D.left - x;
+		if (x < Draw2D.left) {
+			int i = Draw2D.left - x;
 			w -= i;
-			x = Graphics2D.left;
+			x = Draw2D.left;
 			srcOff += i;
 			dstOff += i;
 			srcStep += i;
 			dstStep += i;
 		}
-		if (x + w > Graphics2D.right) {
-			int i = x + w - Graphics2D.right;
+		if (x + w > Draw2D.right) {
+			int i = x + w - Draw2D.right;
 			w -= i;
 			srcStep += i;
 			dstStep += i;
 		}
 
 		if (w > 0 && h > 0) {
-			copyImage(Graphics2D.dst, srcOff, 0, h, srcStep, dstOff, dstStep, pixels, mask.pixels, w);
+			copyImage(Draw2D.dst, srcOff, 0, h, srcStep, dstOff, dstStep, pixels, mask.pixels, w);
 		}
 	}
 

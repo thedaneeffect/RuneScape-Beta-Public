@@ -47,15 +47,15 @@ public final class Palette {
 		// TODO: create TextureManager
 
 		for (int n = 0; n < 50; n++) {
-			if (Graphics3D.textures[n] != null) {
-				int[] texturePalette = Graphics3D.textures[n].palette;
-				Graphics3D.texturePalettes[n] = new int[texturePalette.length];
+			if (Draw3D.textures[n] != null) {
+				int[] texturePalette = Draw3D.textures[n].palette;
+				Draw3D.texturePalettes[n] = new int[texturePalette.length];
 
 				for (int i = 0; i < texturePalette.length; i++) {
-					Graphics3D.texturePalettes[n][i] = Colors.setBrightness(texturePalette[i], brightness);
+					Draw3D.texturePalettes[n][i] = Colors.setBrightness(texturePalette[i], brightness);
 				}
 			}
-			Graphics3D.updateTexture(n);
+			Draw3D.updateTexture(n);
 		}
 	}
 

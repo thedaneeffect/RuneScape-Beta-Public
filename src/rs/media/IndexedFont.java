@@ -3,7 +3,7 @@ package rs.media;
 import rs.io.Archive;
 import rs.io.Buffer;
 
-public final class IndexedFont extends Graphics2D {
+public final class IndexedFont extends Draw2D {
 
 	public static int[] CHAR_LOOKUP = new int[256];
 
@@ -19,33 +19,33 @@ public final class IndexedFont extends Graphics2D {
 	public IndexedFont(String name, Archive archive) {
 		Buffer dat = new Buffer(archive.get(name + ".dat", null));
 		Buffer idx = new Buffer(archive.get("index.dat", null));
-		idx.position = dat.getUShort() + 4;
+		idx.position = dat.get2U() + 4;
 
-		int off = idx.getUByte();
+		int off = idx.get1U();
 
 		if (off > 0) {
 			idx.position += (off - 1) * 3;
 		}
 
 		for (int n = 0; n < 94; n++) {
-			charOffsetX[n] = idx.getUByte();
-			charOffsetY[n] = idx.getUByte();
+			charOffsetX[n] = idx.get1U();
+			charOffsetY[n] = idx.get1U();
 
-			int w = charWidth[n] = idx.getUShort();
-			int h = charHeight[n] = idx.getUShort();
+			int w = charWidth[n] = idx.get2U();
+			int h = charHeight[n] = idx.get2U();
 
-			int type = idx.getUByte();
+			int type = idx.get1U();
 			int len = w * h;
 			pixels[n] = new byte[len];
 
 			if (type == 0) {
 				for (int i = 0; i < len; i++) {
-					pixels[n][i] = dat.getByte();
+					pixels[n][i] = dat.get1();
 				}
 			} else if (type == 1) {
 				for (int x = 0; x < w; x++) {
 					for (int y = 0; y < h; y++) {
-						pixels[n][x + y * w] = dat.getByte();
+						pixels[n][x + y * w] = dat.get1();
 					}
 				}
 			}
@@ -246,7 +246,7 @@ public final class IndexedFont extends Graphics2D {
 		}
 
 		if (w > 0 && h > 0) {
-			drawMask(Graphics2D.dst, data, rgb, srcOff, dstOff, w, h, dstStep, srcStep);
+			drawMask(Draw2D.dst, data, rgb, srcOff, dstOff, w, h, dstStep, srcStep);
 		}
 	}
 

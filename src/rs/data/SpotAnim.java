@@ -3,7 +3,7 @@ package rs.data;
 import rs.io.Archive;
 import rs.io.Buffer;
 import rs.util.Cache;
-import rs.world.scene.Model;
+import rs.scene.Model;
 
 public class SpotAnim {
 
@@ -12,7 +12,7 @@ public class SpotAnim {
 
 	public int index;
 	public int modelIndex;
-	public Seq seq;
+	public SeqType seq;
 	public boolean disposeAlpha = false;
 	public int[] oldColors = new int[6];
 	public int[] newColors = new int[6];
@@ -20,7 +20,7 @@ public class SpotAnim {
 
 	public static void load(Archive a) {
 		Buffer b = new Buffer(a.get("spotanim.dat", null));
-		count = b.getUShort();
+		count = b.get2U();
 
 		if (instance == null) {
 			instance = new SpotAnim[count];
@@ -37,22 +37,22 @@ public class SpotAnim {
 
 	public void read(Buffer b) {
 		for (;;) {
-			int opcode = b.getUByte();
+			int opcode = b.get1U();
 
 			if (opcode == 0) {
 				break;
 			}
 
 			if (opcode == 1) {
-				modelIndex = b.getUShort();
+				modelIndex = b.get2U();
 			} else if (opcode == 2) {
-				seq = Seq.instances[b.getUShort()];
+				seq = SeqType.instances[b.get2U()];
 			} else if (opcode == 3) {
 				disposeAlpha = true;
 			} else if (opcode >= 40 && opcode < 50) {
-				oldColors[opcode - 40] = b.getUShort();
+				oldColors[opcode - 40] = b.get2U();
 			} else if (opcode >= 50 && opcode < 60) {
-				newColors[opcode - 50] = b.getUShort();
+				newColors[opcode - 50] = b.get2U();
 			} else {
 				System.out.println("Error unrecognised spotanim config code: " + opcode);
 			}

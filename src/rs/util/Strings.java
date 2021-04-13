@@ -30,7 +30,7 @@ public final class Strings {
 		StringBuilder sb = new StringBuilder();
 
 		for (int n = 0; n < len; n++) {
-			int c = buffer.getUByte();
+			int c = buffer.get1U();
 			int value = (c >> 4) & 0xF;
 
 			if (last == -1) {
@@ -99,19 +99,19 @@ public final class Strings {
 				if (lsb < 13) {
 					msb = lsb;
 				} else {
-					buffer.putByte(lsb);
+					buffer.put1(lsb);
 				}
 			} else if (lsb < 13) {
-				buffer.putByte((msb << 4) + lsb);
+				buffer.put1((msb << 4) + lsb);
 				msb = -1;
 			} else {
-				buffer.putByte((msb << 4) + (lsb >> 4));
+				buffer.put1((msb << 4) + (lsb >> 4));
 				msb = lsb & 0xf;
 			}
 		}
 
 		if (msb != -1) {
-			buffer.putByte(msb << 4);
+			buffer.put1(msb << 4);
 		}
 	}
 

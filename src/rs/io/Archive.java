@@ -19,8 +19,8 @@ public final class Archive {
 	private void read(byte[] src) {
 		Buffer b = new Buffer(src);
 
-		int unpackedSize = b.getInt24();
-		int packedSize = b.getInt24();
+		int unpackedSize = b.get3();
+		int packedSize = b.get3();
 
 		if (packedSize != unpackedSize) {
 			byte[] dst = new byte[unpackedSize];
@@ -31,7 +31,7 @@ public final class Archive {
 			data = src;
 		}
 
-		fileCount = b.getUShort();
+		fileCount = b.get2U();
 		fileHash = new int[fileCount];
 		fileUnpackedSize = new int[fileCount];
 		filePackedSize = new int[fileCount];
@@ -39,9 +39,9 @@ public final class Archive {
 
 		int pos = b.position + fileCount * 10;
 		for (int n = 0; n < fileCount; n++) {
-			fileHash[n] = b.getInt();
-			fileUnpackedSize[n] = b.getInt24();
-			filePackedSize[n] = b.getInt24();
+			fileHash[n] = b.get4();
+			fileUnpackedSize[n] = b.get3();
+			filePackedSize[n] = b.get3();
 			fileOffset[n] = pos;
 			pos += filePackedSize[n];
 		}

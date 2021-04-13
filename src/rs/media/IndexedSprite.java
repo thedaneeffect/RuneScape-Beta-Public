@@ -3,7 +3,7 @@ package rs.media;
 import rs.io.Archive;
 import rs.io.Buffer;
 
-public final class IndexedSprite extends Graphics2D {
+public final class IndexedSprite extends Draw2D {
 
 	public byte[] pixels;
 	public int[] palette;
@@ -18,39 +18,39 @@ public final class IndexedSprite extends Graphics2D {
 		Buffer dat = new Buffer(archive.get(name + ".dat", null));
 		Buffer idx = new Buffer(archive.get("index.dat", null));
 
-		idx.position = dat.getUShort();
+		idx.position = dat.get2U();
 
-		clipWidth = idx.getUShort();
-		clipHeight = idx.getUShort();
+		clipWidth = idx.get2U();
+		clipHeight = idx.get2U();
 
-		palette = new int[idx.getUByte()];
+		palette = new int[idx.get1U()];
 
 		for (int n = 0; n < palette.length - 1; n++) {
-			palette[n + 1] = idx.getInt24();
+			palette[n + 1] = idx.get3();
 		}
 
 		for (int n = 0; n < index; n++) {
 			idx.position += 2;
-			dat.position += (idx.getUShort() * idx.getUShort());
+			dat.position += (idx.get2U() * idx.get2U());
 			idx.position++;
 		}
 
-		clipX = idx.getUByte();
-		clipY = idx.getUByte();
-		width = idx.getUShort();
-		height = idx.getUShort();
+		clipX = idx.get1U();
+		clipY = idx.get1U();
+		width = idx.get2U();
+		height = idx.get2U();
 
-		int type = idx.getUByte();
+		int type = idx.get1U();
 		pixels = new byte[width * height];
 
 		if (type == 0) {
 			for (int n = 0; n < pixels.length; n++) {
-				pixels[n] = dat.getByte();
+				pixels[n] = dat.get1();
 			}
 		} else if (type == 1) {
 			for (int x = 0; x < width; x++) {
 				for (int y = 0; y < height; y++) {
-					pixels[x + y * width] = dat.getByte();
+					pixels[x + y * width] = dat.get1();
 				}
 			}
 		}

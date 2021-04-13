@@ -2,14 +2,14 @@ package rs.data;
 
 import rs.io.Archive;
 import rs.io.Buffer;
-import rs.world.scene.Model;
+import rs.scene.Model;
 
 public class SeqFrame {
 
 	public static SeqFrame[] instance;
 
 	public int delay;
-	public SeqTransform transform;
+	public SeqBase transform;
 	public int groupCount;
 	public int[] groups;
 	public int[] x;
@@ -22,8 +22,8 @@ public class SeqFrame {
 		Buffer tran2 = new Buffer(a.get("frame_tran2.dat", null));
 		Buffer delay = new Buffer(a.get("frame_del.dat", null));
 
-		int frameCount = head.getUShort();
-		int totalFrames = head.getUShort();
+		int frameCount = head.get2U();
+		int totalFrames = head.get2U();
 
 		instance = new SeqFrame[totalFrames + 1];
 
@@ -33,18 +33,18 @@ public class SeqFrame {
 		int[] z = new int[500];
 
 		for (int frame = 0; frame < frameCount; frame++) {
-			SeqFrame f = instance[head.getUShort()] = new SeqFrame();
-			f.delay = delay.getUByte();
+			SeqFrame f = instance[head.get2U()] = new SeqFrame();
+			f.delay = delay.get1U();
 
-			SeqTransform t = SeqTransform.instance[head.getUShort()];
+			SeqBase t = SeqBase.instance[head.get2U()];
 			f.transform = t;
 
-			int groupCount = head.getUByte();
+			int groupCount = head.get1U();
 			int lastGroup = -1;
 			int count = 0;
 
 			for (int n = 0; n < groupCount; n++) {
-				int flags = tran1.getUByte();
+				int flags = tran1.get1U();
 
 				if (flags > 0) {
 					if (t.types[n] != Model.TYPE_BONE) {
