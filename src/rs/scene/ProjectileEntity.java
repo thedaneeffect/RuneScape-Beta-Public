@@ -1,10 +1,10 @@
 package rs.scene;
 
-import rs.data.SpotAnim;
+import rs.data.SpotAnimType;
 
 public final class ProjectileEntity extends Entity {
 
-	public  final SpotAnim spotanim;
+	public  final SpotAnimType spotanim;
 	public int level;
 	public int sourceX;
 	public int sourceY;
@@ -30,7 +30,7 @@ public final class ProjectileEntity extends Entity {
 	public int frameCycle;
 
 	public ProjectileEntity(int spotanim, int target, int sourceX, int sourceY, int sourceZ, int level, int firstTick, int lastTick, int arcScale, int elevationPitch, int baseZ) {
-		this.spotanim = SpotAnim.instance[spotanim];
+		this.spotanim = SpotAnimType.instance[spotanim];
 		this.level = level;
 		this.sourceX = sourceX;
 		this.sourceY = sourceY;

@@ -4,7 +4,7 @@ import rs.Game;
 import rs.data.IdkType;
 import rs.data.ObjType;
 import rs.data.SeqType;
-import rs.data.SpotAnim;
+import rs.data.SpotAnimType;
 import rs.io.Buffer;
 import rs.util.Cache;
 import rs.util.Strings;
@@ -104,7 +104,7 @@ public final class PlayerEntity extends PathingEntity {
 		}
 
 		if (spotanimIndex != -1 && spotanimFrame != -1) {
-			SpotAnim s = SpotAnim.instance[spotanimIndex];
+			SpotAnimType s = SpotAnimType.instance[spotanimIndex];
 			Model m = new Model(s.getModel(), false, true, !s.disposeAlpha, true);
 			m.translate(0, -spotanimOffsetY, 0);
 			m.applyGroups();

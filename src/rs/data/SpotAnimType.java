@@ -5,10 +5,10 @@ import rs.io.Buffer;
 import rs.util.Cache;
 import rs.scene.Model;
 
-public class SpotAnim {
+public class SpotAnimType {
 
 	public static int count;
-	public static SpotAnim[] instance;
+	public static SpotAnimType[] instance;
 
 	public int index;
 	public int modelIndex;
@@ -23,12 +23,12 @@ public class SpotAnim {
 		count = b.get2U();
 
 		if (instance == null) {
-			instance = new SpotAnim[count];
+			instance = new SpotAnimType[count];
 		}
 
 		for (int n = 0; n < count; n++) {
 			if (instance[n] == null) {
-				instance[n] = new SpotAnim();
+				instance[n] = new SpotAnimType();
 			}
 			instance[n].index = n;
 			instance[n].read(b);

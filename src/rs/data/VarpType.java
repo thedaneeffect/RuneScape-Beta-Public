@@ -3,10 +3,10 @@ package rs.data;
 import rs.io.Archive;
 import rs.io.Buffer;
 
-public class Varp {
+public class VarpType {
 
 	public static int total;
-	public static Varp[] instance;
+	public static VarpType[] instance;
 	public int type;
 
 	public static void load(Archive a) {
@@ -14,12 +14,12 @@ public class Varp {
 		total = b.get2U();
 
 		if (instance == null) {
-			instance = new Varp[total];
+			instance = new VarpType[total];
 		}
 
 		for (int n = 0; n < total; n++) {
 			if (instance[n] == null) {
-				instance[n] = new Varp();
+				instance[n] = new VarpType();
 			}
 			instance[n].read(b);
 		}

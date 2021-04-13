@@ -684,8 +684,8 @@ public class Game extends GameShell {
 		ObjType.load(config);
 		NPCType.load(config);
 		IdkType.load(config);
-		SpotAnim.load(config);
-		Varp.load(config);
+		SpotAnimType.load(config);
+		VarpType.load(config);
 	}
 
 	public void prepareRotatables() {
@@ -2042,9 +2042,9 @@ public class Game extends GameShell {
 		IdkType.instances = null;
 		Component.instances = null;
 		SeqType.instances = null;
-		SpotAnim.instance = null;
-		SpotAnim.models = null;
-		Varp.instance = null;
+		SpotAnimType.instance = null;
+		SpotAnimType.models = null;
+		VarpType.instance = null;
 		PlayerEntity.models = null;
 		Draw3D.unload();
 		Scene.unload();
@@ -2061,7 +2061,7 @@ public class Game extends GameShell {
 		ObjType.models.clear();
 		ObjType.sprites.clear();
 		PlayerEntity.models.clear();
-		SpotAnim.models.clear();
+		SpotAnimType.models.clear();
 	}
 
 	public final void logout() {
@@ -4307,7 +4307,7 @@ public class Game extends GameShell {
 						e.spotanimFrame = 0;
 					}
 
-					SeqType a = SpotAnim.instance[e.spotanimIndex].seq;
+					SeqType a = SpotAnimType.instance[e.spotanimIndex].seq;
 
 					for (e.spotanimCycle++; (e.spotanimFrame < a.frameCount && (e.spotanimCycle > (a.frameDelay[e.spotanimFrame]))); e.spotanimFrame++) {
 						e.spotanimCycle -= (a.frameDelay[e.spotanimFrame]);
@@ -7683,7 +7683,7 @@ public class Game extends GameShell {
 	}
 
 	public final void updateVarp(int index) {
-		int type = Varp.instance[index].type;
+		int type = VarpType.instance[index].type;
 
 		if (type != 0) {
 			int v = variables[index];

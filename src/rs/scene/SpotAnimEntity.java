@@ -1,10 +1,10 @@
 package rs.scene;
 
-import rs.data.SpotAnim;
+import rs.data.SpotAnimType;
 
 public final class SpotAnimEntity extends Entity {
 
-	public final SpotAnim spotanim;
+	public final SpotAnimType spotanim;
 	public int firstCycle;
 	public int level;
 	public int x;
@@ -15,7 +15,7 @@ public final class SpotAnimEntity extends Entity {
 	public boolean finished = false;
 
 	public SpotAnimEntity(int x, int y, int z, int level, int spotanimIndex, int startCycle, int duration) {
-		this.spotanim = SpotAnim.instance[spotanimIndex];
+		this.spotanim = SpotAnimType.instance[spotanimIndex];
 		this.level = level;
 		this.x = x;
 		this.z = z;

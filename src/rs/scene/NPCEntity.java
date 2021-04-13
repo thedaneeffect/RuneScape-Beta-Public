@@ -2,7 +2,7 @@ package rs.scene;
 
 import rs.data.NPCType;
 import rs.data.SeqType;
-import rs.data.SpotAnim;
+import rs.data.SpotAnimType;
 
 public final class NPCEntity extends PathingEntity {
 
@@ -18,7 +18,7 @@ public final class NPCEntity extends PathingEntity {
 			return getModel();
 		}
 
-		SpotAnim spotanim = SpotAnim.instance[spotanimIndex];
+		SpotAnimType spotanim = SpotAnimType.instance[spotanimIndex];
 		Model m = new Model(spotanim.getModel(), false, true, !spotanim.disposeAlpha, true);
 
 		m.translate(0, -spotanimOffsetY, 0);
