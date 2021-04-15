@@ -1,11 +1,11 @@
-package rs.scene;
+package rs.data;
 
-import rs.data.SeqFrame;
-import rs.data.SeqBase;
 import rs.io.Archive;
 import rs.io.Buffer;
 import rs.media.Draw2D;
 import rs.media.Draw3D;
+import rs.scene.SceneBuilder;
+import rs.scene.VertexNormal;
 import rs.util.CacheableNode;
 import rs.util.Triangles;
 

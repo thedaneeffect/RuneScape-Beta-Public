@@ -1,5 +1,7 @@
 package rs.scene;
 
+import rs.data.Model;
+
 public final class Wall {
 
 	public int sceneY;

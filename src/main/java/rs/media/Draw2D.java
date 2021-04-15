@@ -1,7 +1,7 @@
 package rs.media;
 
 import rs.util.CacheableNode;
-import rs.scene.Model;
+import rs.data.Model;
 
 public class Draw2D extends CacheableNode {
 

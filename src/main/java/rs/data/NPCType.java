@@ -3,7 +3,6 @@ package rs.data;
 import rs.io.Archive;
 import rs.io.Buffer;
 import rs.util.Cache;
-import rs.scene.Model;
 
 public class NPCType {
 

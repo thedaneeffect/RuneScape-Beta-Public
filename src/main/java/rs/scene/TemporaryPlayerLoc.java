@@ -2,7 +2,7 @@ package rs.scene;
 
 import rs.util.Node;
 
-public final class PlayerLoc extends Node {
+public final class TemporaryPlayerLoc extends Node {
 
 	public int level;
 	public int classtype;
@@ -13,7 +13,7 @@ public final class PlayerLoc extends Node {
 	public int type;
 	public int lastCycle;
 
-	public PlayerLoc(int locIndex, int tileX, int tileY, int level, int type, int rotation, int classtype, int lastCycle) {
+	public TemporaryPlayerLoc(int locIndex, int tileX, int tileY, int level, int type, int rotation, int classtype, int lastCycle) {
 		this.level = level;
 		this.classtype = classtype;
 		this.tileX = tileX;

@@ -1,6 +1,7 @@
 package rs.scene;
 
 import rs.data.LocType;
+import rs.data.Model;
 import rs.media.Draw2D;
 import rs.media.Draw3D;
 import rs.util.LinkedList;

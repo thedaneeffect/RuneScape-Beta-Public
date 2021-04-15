@@ -3,7 +3,6 @@ package rs.data;
 import rs.io.Archive;
 import rs.io.Buffer;
 import rs.util.Cache;
-import rs.scene.Model;
 
 public class LocType {
 
@@ -15,8 +14,7 @@ public class LocType {
 	private static int cachePosition;
 
 	/* @formatter:off */
-	public static final int[] TYPE_TO_CLASS = {
-			0, // straight walls, fences
+	public static final int[] TYPE_TO_CLASS = {0, // straight walls, fences
 			0, // diagonal walls corner, fences etc connectors
 			0, // entire walls, fences etc corners
 			0, // straight wall corners, fences etc connectors
@@ -47,34 +45,64 @@ public class LocType {
 	public static final int TYPE_GROUND_DECORATION = 3;
 
 	public int index;
-	public int[] modelIndices;
+	public int[] modelIds;
 	public int[] modelTypes;
 	public String name;
-	public byte[] description;
-	private int[] oldColors;
-	private int[] newColors;
+	public String description;
+	public int[] srcColor;
+	public int[] dstColor;
 	public int sizeX;
 	public int sizeZ;
-	public boolean hasCollision;
-	public boolean isSolid;
+	/**
+	 * <code>true</code> to apply collisions.
+	 */
+	public boolean solid;
+	/**
+	 * <code>true</code> to block projectiles.
+	 */
+	public boolean blocksProjectiles;
+	/**
+	 * Allows the loc to be picked. (Right clicked, or have actions)
+	 */
 	public boolean interactable;
-	private boolean adjustToTerrain;
-	private boolean flatShaded;
-	public boolean culls;
-	public int animationIndex;
-	public int thickness;
-	private byte brightness;
-	private byte specular;
+	/**
+	 * <code>true</code> to adjust the model to the terrain. Has the same side effect as {@link #dynamic}.
+	 */
+	public boolean adjustToTerrain;
+	/**
+	 * <code>true</code> if the model for this loc is expected to be modified. This prevents the model from being
+	 * cached into {@link #builtModels}.
+	 */
+	public boolean dynamic;
+	/**
+	 * Sets occlude flags for the scene when this loc is used.
+	 */
+	public boolean occludes;
+	/**
+	 * The {@link SeqType} id.
+	 */
+	public int seqId;
+	/**
+	 * Only relevant for type 5 (wall decoration) locs.
+	 */
+	public int decorationPadding;
+	public byte lightAmbient;
+	public byte lightAttenuation;
 	public String[] actions;
-	private boolean disposeAlpha;
-	public int mapfunction;
-	public int mapscene;
-	private boolean rotateCounterClockwise;
-	public boolean hasShadow;
-	private int scaleX;
-	private int scaleY;
-	private int scaleZ;
+	/**
+	 * <code>false</code> makes {@link #getModel(int, int, int, int, int, int, int)} reference face alpha values.
+	 * <code>true</code> makes the method above <b>copy</b> face alpha values.
+	 */
+	public boolean animated;
+	public int mapfunctionIcon;
+	public int mapsceneIcon;
+	public boolean invert;
+	public boolean castsShadow;
+	public int scaleX;
+	public int scaleY;
+	public int scaleZ;
 	public int interactionSideFlags;
+
 	public static Cache models = new Cache(500);
 	public static Cache builtModels = new Cache(30);
 
@@ -135,30 +163,30 @@ public class LocType {
 	}
 
 	private void reset() {
-		modelIndices = null;
+		modelIds = null;
 		modelTypes = null;
 		name = null;
 		description = null;
-		oldColors = null;
-		newColors = null;
+		srcColor = null;
+		dstColor = null;
 		sizeX = 1;
 		sizeZ = 1;
-		hasCollision = true;
-		isSolid = true;
+		solid = true;
+		blocksProjectiles = true;
 		interactable = false;
 		adjustToTerrain = false;
-		flatShaded = false;
-		culls = false;
-		animationIndex = -1;
-		thickness = 16;
-		brightness = (byte) 0;
-		specular = (byte) 0;
+		dynamic = false;
+		occludes = false;
+		seqId = -1;
+		decorationPadding = 16;
+		lightAmbient = (byte) 0;
+		lightAttenuation = (byte) 0;
 		actions = null;
-		disposeAlpha = false;
-		mapfunction = -1;
-		mapscene = -1;
-		rotateCounterClockwise = false;
-		hasShadow = true;
+		animated = false;
+		mapfunctionIcon = -1;
+		mapsceneIcon = -1;
+		invert = false;
+		castsShadow = true;
 		scaleX = 128;
 		scaleY = 128;
 		scaleZ = 128;
@@ -175,23 +203,23 @@ public class LocType {
 			} else if (opcode == 1) {
 				int n = b.get1U();
 				modelTypes = new int[n];
-				modelIndices = new int[n];
+				modelIds = new int[n];
 				for (int m = 0; m < n; m++) {
-					modelIndices[m] = b.get2U();
+					modelIds[m] = b.get2U();
 					modelTypes[m] = b.get1U();
 				}
 			} else if (opcode == 2) {
 				name = b.getString();
 			} else if (opcode == 3) {
-				description = b.getStringRaw();
+				description = b.getString();
 			} else if (opcode == 5) { // 289-377 LOC.DAT BACKWARDS COMPATIBILITY
 				int n = b.get1U();
 				if (n > 0) {
 					modelTypes = null;
-					modelIndices = new int[n];
+					modelIds = new int[n];
 
 					for (int m = 0; m < n; m++) {
-						modelIndices[m] = b.get2U();
+						modelIds[m] = b.get2U();
 					}
 				}
 			} else if (opcode == 14) {
@@ -199,9 +227,9 @@ public class LocType {
 			} else if (opcode == 15) {
 				sizeZ = b.get1U();
 			} else if (opcode == 17) {
-				hasCollision = false;
+				solid = false;
 			} else if (opcode == 18) {
-				isSolid = false;
+				blocksProjectiles = false;
 			} else if (opcode == 19) {
 				bool = b.get1U();
 				if (bool == 1) {
@@ -210,23 +238,23 @@ public class LocType {
 			} else if (opcode == 21) {
 				adjustToTerrain = true;
 			} else if (opcode == 22) {
-				flatShaded = true;
+				dynamic = true;
 			} else if (opcode == 23) {
-				culls = true;
+				occludes = true;
 			} else if (opcode == 24) {
-				animationIndex = b.get2U();
+				seqId = b.get2U();
 
-				if (animationIndex == 65535) {
-					animationIndex = -1;
+				if (seqId == 65535) {
+					seqId = -1;
 				}
 			} else if (opcode == 25) {
-				disposeAlpha = true;
+				animated = true;
 			} else if (opcode == 28) {
-				thickness = b.get1U();
+				decorationPadding = b.get1U();
 			} else if (opcode == 29) {
-				brightness = b.get1();
+				lightAmbient = b.get1();
 			} else if (opcode == 39) {
-				specular = b.get1();
+				lightAttenuation = b.get1();
 			} else if (opcode >= 30 && opcode < 39) {
 				if (actions == null) {
 					actions = new String[5];
@@ -240,18 +268,18 @@ public class LocType {
 				}
 			} else if (opcode == 40) {
 				int n = b.get1U();
-				oldColors = new int[n];
-				newColors = new int[n];
+				srcColor = new int[n];
+				dstColor = new int[n];
 				for (int m = 0; m < n; m++) {
-					oldColors[m] = b.get2U();
-					newColors[m] = b.get2U();
+					srcColor[m] = b.get2U();
+					dstColor[m] = b.get2U();
 				}
 			} else if (opcode == 60) {
-				mapfunction = b.get2U();
+				mapfunctionIcon = b.get2U();
 			} else if (opcode == 62) {
-				rotateCounterClockwise = true;
+				invert = true;
 			} else if (opcode == 64) {
-				hasShadow = false;
+				castsShadow = false;
 			} else if (opcode == 65) {
 				scaleX = b.get2U();
 			} else if (opcode == 66) {
@@ -259,15 +287,15 @@ public class LocType {
 			} else if (opcode == 67) {
 				scaleZ = b.get2U();
 			} else if (opcode == 68) {
-				mapscene = b.get2U();
+				mapsceneIcon = b.get2U();
 			} else if (opcode == 69) {
 				interactionSideFlags = b.get1U();
 			} else if (opcode >= 70 && opcode <= 72) {
-				b.get2(); // 289
+				b.get2(); // 289 (translate x/y/z)
 			} else if (opcode == 73 || opcode == 74) {
-				// ignore 289
+				// ignore 289 (73 = important, 74 = decorative)
 			} else if (opcode == 75) {
-				b.get1U(); // ignore
+				b.get1U(); // (supports obj)
 			} else if (opcode == 77) { // ignore varbit
 				int n = b.get2U();
 				b.get1U();
@@ -298,7 +326,7 @@ public class LocType {
 				return null;
 			}
 
-			uid = (long) ((index << 6) + rotation) + ((long) (seqFrame + 1) << 32);
+			uid = ((long) index << 6) + rotation + ((long) (seqFrame + 1) << 32);
 
 			m = (Model) builtModels.get(uid);
 
@@ -306,15 +334,15 @@ public class LocType {
 				return m;
 			}
 
-			if (modelIndices == null) {
+			if (modelIds == null) {
 				return null;
 			}
 
-			boolean flipBackwards = rotateCounterClockwise ^ (rotation > 3);
-			int modelCount = modelIndices.length;
+			boolean flipBackwards = invert ^ (rotation > 3);
+			int modelCount = modelIds.length;
 
 			for (int n = 0; n < modelCount; n++) {
-				int modelIndex = modelIndices[n];
+				int modelIndex = modelIds[n];
 
 				if (flipBackwards) {
 					modelIndex += 0x10000;
@@ -354,9 +382,9 @@ public class LocType {
 				return null;
 			}
 
-			uid = ((long) ((index << 6) + (typeIndex << 3) + rotation) + ((long) (seqFrame + 1) << 32));
+			uid = (((long) index << 6) + ((long) typeIndex << 3) + rotation + ((long) (seqFrame + 1) << 32));
 
-			if (!adjustToTerrain && !flatShaded) {
+			if (!adjustToTerrain && !dynamic) {
 				m = (Model) builtModels.get(uid);
 
 				if (m != null) {
@@ -364,17 +392,17 @@ public class LocType {
 				}
 			}
 
-			if (typeIndex >= modelIndices.length) {
+			if (typeIndex >= modelIds.length) {
 				return null;
 			}
 
-			int modelIndex = modelIndices[typeIndex];
+			int modelIndex = modelIds[typeIndex];
 
 			if (modelIndex == -1) {
 				return null;
 			}
 
-			boolean flipBackwards = rotateCounterClockwise ^ rotation > 3;
+			boolean flipBackwards = invert ^ rotation > 3;
 
 			if (flipBackwards) {
 				modelIndex += 0x10000; // appends a flag to our modelIndex variable.
@@ -395,7 +423,7 @@ public class LocType {
 
 		boolean rescale = scaleX != 128 || scaleY != 128 || scaleZ != 128;
 
-		m = new Model(m, rotation == 0 && !adjustToTerrain && seqFrame == -1 && !rescale, oldColors == null, !disposeAlpha, !flatShaded);
+		m = new Model(m, rotation == 0 && !adjustToTerrain && seqFrame == -1 && !rescale, srcColor == null, !animated, !dynamic);
 
 		if (seqFrame != -1) {
 			m.applyGroups();
@@ -408,9 +436,9 @@ public class LocType {
 			m.rotateCounterClockwise();
 		}
 
-		if (oldColors != null) {
-			for (int n = 0; n < oldColors.length; n++) {
-				m.recolor(oldColors[n], newColors[n]);
+		if (srcColor != null) {
+			for (int n = 0; n < srcColor.length; n++) {
+				m.recolor(srcColor[n], dstColor[n]);
 			}
 		}
 
@@ -438,13 +466,13 @@ public class LocType {
 			}
 		}
 
-		m.applyLighting(brightness + 64, (specular * 5) + 768, -50, -10, -50, !flatShaded);
+		m.applyLighting(lightAmbient + 64, (lightAttenuation * 5) + 768, -50, -10, -50, !dynamic);
 
-		if (hasCollision) {
+		if (solid) {
 			m.objectOffsetY = m.maxBoundY;
 		}
 
-		if (!adjustToTerrain && !flatShaded) {
+		if (!adjustToTerrain && !dynamic) {
 			builtModels.put(uid, m);
 		}
 

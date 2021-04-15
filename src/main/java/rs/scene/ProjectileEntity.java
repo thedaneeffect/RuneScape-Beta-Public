@@ -1,5 +1,6 @@
 package rs.scene;
 
+import rs.data.Model;
 import rs.data.SpotAnimType;
 
 public final class ProjectileEntity extends Entity {

@@ -1,5 +1,7 @@
 package rs.scene;
 
+import rs.data.Model;
+
 public final class Loc {
 
 	public int tileLevel;

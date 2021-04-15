@@ -6,7 +6,6 @@ import rs.media.Draw2D;
 import rs.media.Draw3D;
 import rs.media.Sprite;
 import rs.util.Cache;
-import rs.scene.Model;
 
 public class ObjType {
 

@@ -2,6 +2,7 @@ package rs.scene;
 
 import rs.data.FloType;
 import rs.data.LocType;
+import rs.data.Model;
 import rs.data.SeqType;
 import rs.io.Buffer;
 import rs.media.Draw3D;
@@ -242,8 +243,8 @@ public final class SceneBuilder {
 
 		int bitset = tileX + (tileY << 7) + (locIndex << 14) + (LocType.TYPE_NORMAL << 29);
 
-		if (l.animationIndex >= SeqType.count) {
-			l.animationIndex = -1;
+		if (l.seqId >= SeqType.count) {
+			l.seqId = -1;
 		}
 
 		if (!forceInteraction && !l.interactable) {
@@ -257,7 +258,7 @@ public final class SceneBuilder {
 				Model m = l.getModel(22, rotation, southwestY, southeastY, northeastY, northwestY, -1);
 				graph.addGroundDecoration(m, level, tileX, tileY, averageY, info, bitset);
 
-				if (l.hasCollision && l.interactable) {
+				if (l.solid && l.interactable) {
 					collision.setBlocked(tileX, tileY);
 				}
 			}
@@ -282,7 +283,7 @@ public final class SceneBuilder {
 					sizeY = l.sizeZ;
 				}
 
-				if (graph.addLocation(m, null, tileX, tileY, sizeX, sizeY, averageY, level, yaw, bitset, info) && l.hasShadow) {
+				if (graph.addLocation(m, null, tileX, tileY, sizeX, sizeY, averageY, level, yaw, bitset, info) && l.castsShadow) {
 					for (int x = 0; x <= sizeX; x++) {
 						for (int y = 0; y <= sizeY; y++) {
 							int darkness = m.lengthXZ / 4;
@@ -299,12 +300,12 @@ public final class SceneBuilder {
 				}
 			}
 
-			if (l.hasCollision) {
-				collision.setLoc(tileX, tileY, l.sizeX, l.sizeZ, rotation, l.isSolid);
+			if (l.solid) {
+				collision.setLoc(tileX, tileY, l.sizeX, l.sizeZ, rotation, l.blocksProjectiles);
 			}
 
-			if (l.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.animationIndex], locIndex, 2, tileX, tileY, level));
+			if (l.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.seqId], locIndex, 2, tileX, tileY, level));
 			}
 		} else if (type >= 12) {
 			Model m = l.getModel(type, rotation, southwestY, southeastY, northeastY, northwestY, -1);
@@ -314,63 +315,63 @@ public final class SceneBuilder {
 				occludeFlags[level][tileX][tileY] |= 0x800 | 0x100 | 0x20 | 0x4;
 			}
 
-			if (l.hasCollision) {
-				collision.setLoc(tileX, tileY, l.sizeX, l.sizeZ, rotation, l.isSolid);
+			if (l.solid) {
+				collision.setLoc(tileX, tileY, l.sizeX, l.sizeZ, rotation, l.blocksProjectiles);
 			}
 
-			if (l.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.animationIndex], locIndex, 2, tileX, tileY, level));
+			if (l.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.seqId], locIndex, 2, tileX, tileY, level));
 			}
 		} else if (type == 0) {
 			Model m = l.getModel(0, rotation, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWall(m, null, level, tileX, tileY, averageY, bitset, info, WALL_ROTATION_TYPE1[rotation], 0);
 
 			if (rotation == 0) {
-				if (l.hasShadow) {
+				if (l.castsShadow) {
 					shadowmap[level][tileX][tileY] = (byte) 50;
 					shadowmap[level][tileX][tileY + 1] = (byte) 50;
 				}
 
-				if (l.culls) {
+				if (l.occludes) {
 					occludeFlags[level][tileX][tileY] |= 0x200 | 0x40 | 0x8 | 0x1;
 				}
 			} else if (rotation == 1) {
-				if (l.hasShadow) {
+				if (l.castsShadow) {
 					shadowmap[level][tileX][tileY + 1] = (byte) 50;
 					shadowmap[level][tileX + 1][tileY + 1] = (byte) 50;
 				}
 
-				if (l.culls) {
+				if (l.occludes) {
 					occludeFlags[level][tileX][tileY + 1] |= 0x400 | 0x80 | 0x10 | 0x2;
 				}
 			} else if (rotation == 2) {
-				if (l.hasShadow) {
+				if (l.castsShadow) {
 					shadowmap[level][tileX + 1][tileY] = (byte) 50;
 					shadowmap[level][tileX + 1][tileY + 1] = (byte) 50;
 				}
 
-				if (l.culls) {
+				if (l.occludes) {
 					occludeFlags[level][tileX + 1][tileY] |= 0x200 | 0x40 | 0x8 | 0x1;
 				}
 			} else if (rotation == 3) {
-				if (l.hasShadow) {
+				if (l.castsShadow) {
 					shadowmap[level][tileX][tileY] = (byte) 50;
 					shadowmap[level][tileX + 1][tileY] = (byte) 50;
 				}
 
-				if (l.culls) {
+				if (l.occludes) {
 					occludeFlags[level][tileX][tileY] |= 0x400 | 0x80 | 0x10 | 0x2;
 				}
 			}
 
-			if (l.hasCollision) {
-				collision.setWall(tileX, tileY, type, rotation, l.isSolid);
+			if (l.solid) {
+				collision.setWall(tileX, tileY, type, rotation, l.blocksProjectiles);
 			}
 		} else if (type == 1) {
 			Model m = l.getModel(1, rotation, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWall(m, null, level, tileX, tileY, averageY, bitset, info, WALL_ROTATION_TYPE2[rotation], 0);
 
-			if (l.hasShadow) {
+			if (l.castsShadow) {
 				if (rotation == 0) {
 					shadowmap[level][tileX][tileY + 1] = (byte) 50;
 				} else if (rotation == 1) {
@@ -382,8 +383,8 @@ public final class SceneBuilder {
 				}
 			}
 
-			if (l.hasCollision) {
-				collision.setWall(tileX, tileY, type, rotation, l.isSolid);
+			if (l.solid) {
+				collision.setWall(tileX, tileY, type, rotation, l.blocksProjectiles);
 			}
 		} else if (type == 2) {
 			int nextRotation = rotation + 1 & 0x3;
@@ -391,7 +392,7 @@ public final class SceneBuilder {
 			Model model2 = l.getModel(2, nextRotation, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWall(model1, model2, level, tileX, tileY, averageY, bitset, info, WALL_ROTATION_TYPE1[rotation], WALL_ROTATION_TYPE1[nextRotation]);
 
-			if (l.culls) {
+			if (l.occludes) {
 				if (rotation == 0) {
 					occludeFlags[level][tileX][tileY] |= 0x200 | 0x40 | 0x8 | 0x1;
 					occludeFlags[level][tileX][tileY + 1] |= 0x400 | 0x80 | 0x10 | 0x2;
@@ -407,14 +408,14 @@ public final class SceneBuilder {
 				}
 			}
 
-			if (l.hasCollision) {
-				collision.setWall(tileX, tileY, type, rotation, l.isSolid);
+			if (l.solid) {
+				collision.setWall(tileX, tileY, type, rotation, l.blocksProjectiles);
 			}
 		} else if (type == 3) {
 			Model m = l.getModel(3, rotation, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWall(m, null, level, tileX, tileY, averageY, bitset, info, WALL_ROTATION_TYPE2[rotation], 0);
 
-			if (l.hasShadow) {
+			if (l.castsShadow) {
 				if (rotation == 0) {
 					shadowmap[level][tileX][tileY + 1] = (byte) 50;
 				} else if (rotation == 1) {
@@ -425,57 +426,57 @@ public final class SceneBuilder {
 					shadowmap[level][tileX][tileY] = (byte) 50;
 				}
 			}
-			if (l.hasCollision) {
-				collision.setWall(tileX, tileY, type, rotation, l.isSolid);
+			if (l.solid) {
+				collision.setWall(tileX, tileY, type, rotation, l.blocksProjectiles);
 			}
 		} else if (type == 9) {
 			Model m = l.getModel(type, rotation, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addLocation(m, null, tileX, tileY, 1, 1, averageY, level, 0, bitset, info);
 
-			if (l.hasCollision) {
-				collision.setLoc(tileX, tileY, l.sizeX, l.sizeZ, rotation, l.isSolid);
+			if (l.solid) {
+				collision.setLoc(tileX, tileY, l.sizeX, l.sizeZ, rotation, l.blocksProjectiles);
 			}
 		} else if (type == 4) {
 			Model m = l.getModel(4, 0, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWallDecoration(m, tileX, tileY, averageY, 0, 0, level, bitset, info, WALL_ROTATION_TYPE1[rotation], rotation * 512);
 
-			if (l.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.animationIndex], locIndex, 1, tileX, tileY, level));
+			if (l.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.seqId], locIndex, 1, tileX, tileY, level));
 			}
 		} else if (type == 5) {
 			int thickness = 16;
 			int wallBitset = graph.getWallBitset(tileX, tileY, level);
 
 			if (wallBitset > 0) {
-				thickness = LocType.get(wallBitset >> 14 & 0x7fff).thickness;
+				thickness = LocType.get(wallBitset >> 14 & 0x7fff).decorationPadding;
 			}
 
 			Model m = l.getModel(4, 0, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWallDecoration(m, tileX, tileY, averageY, WALL_DECO_ROT_SIZE_X_DIR[rotation] * thickness, WALL_DECO_ROT_SIZE_Y_DIR[rotation] * thickness, level, bitset, info, WALL_ROTATION_TYPE1[rotation], rotation * 512);
 
-			if (l.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.animationIndex], locIndex, 1, tileX, tileY, level));
+			if (l.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.seqId], locIndex, 1, tileX, tileY, level));
 			}
 		} else if (type == 6) {
 			Model m = l.getModel(4, 0, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWallDecoration(m, tileX, tileY, averageY, 0, 0, level, bitset, info, 256, rotation);
 
-			if (l.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.animationIndex], locIndex, 1, tileX, tileY, level));
+			if (l.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.seqId], locIndex, 1, tileX, tileY, level));
 			}
 		} else if (type == 7) {
 			Model m = l.getModel(4, 0, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWallDecoration(m, tileX, tileY, averageY, 0, 0, level, bitset, info, 512, rotation);
 
-			if (l.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.animationIndex], locIndex, 1, tileX, tileY, level));
+			if (l.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.seqId], locIndex, 1, tileX, tileY, level));
 			}
 		} else if (type == 8) {
 			Model m = l.getModel(4, 0, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWallDecoration(m, tileX, tileY, averageY, 0, 0, level, bitset, info, 768, rotation);
 
-			if (l.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.animationIndex], locIndex, 1, tileX, tileY, level));
+			if (l.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[l.seqId], locIndex, 1, tileX, tileY, level));
 			}
 		}
 	}
@@ -752,14 +753,16 @@ public final class SceneBuilder {
 
 							// findMinZ
 							for (/**/; minZ > 0; minZ--) {
-								if (((occludeFlags[level][x][minZ - 1]) & flagA) == 0)
+								if (((occludeFlags[level][x][minZ - 1]) & flagA) == 0) {
 									break;
+								}
 							}
 
 							// findMaxZ
 							for (/**/; maxZ < tileCountZ; maxZ++) {
-								if (((occludeFlags[level][x][maxZ + 1]) & flagA) == 0)
+								if (((occludeFlags[level][x][maxZ + 1]) & flagA) == 0) {
 									break;
+								}
 							}
 
 							findBottomLevel:
@@ -774,8 +777,9 @@ public final class SceneBuilder {
 							findTopLevel:
 							for (/**/; maxLevel < levelTop; maxLevel++) {
 								for (int z0 = minZ; z0 <= maxZ; z0++) {
-									if (((occludeFlags[maxLevel + 1][x][z0]) & flagA) == 0)
+									if (((occludeFlags[maxLevel + 1][x][z0]) & flagA) == 0) {
 										break findTopLevel;
+									}
 								}
 							}
 
@@ -786,11 +790,7 @@ public final class SceneBuilder {
 								int minY = (heightmap[maxLevel][x][minZ] - offsetY);
 								int maxY = heightmap[minLevel][x][minZ];
 
-								Scene.addOcclude(1,
-										x * 128, minY, minZ * 128,
-										x * 128, maxY, maxZ * 128 + 128,
-										levelTop
-								);
+								Scene.addOcclude(1, x * 128, minY, minZ * 128, x * 128, maxY, maxZ * 128 + 128, levelTop);
 
 								for (int l = minLevel; l <= maxLevel; l++) {
 									for (int z0 = minZ; z0 <= maxZ; z0++) {
@@ -848,11 +848,7 @@ public final class SceneBuilder {
 								int minY = (heightmap[maxLevel][minX][z] - offsetY);
 								int maxY = heightmap[minLevel][minX][z];
 
-								Scene.addOcclude(2,
-										minX * 128, minY, z * 128,
-										maxX * 128 + 128, maxY, z * 128,
-										levelTop
-								);
+								Scene.addOcclude(2, minX * 128, minY, z * 128, maxX * 128 + 128, maxY, z * 128, levelTop);
 
 								// remove flag b
 								for (int l = minLevel; l <= maxLevel; l++) {
@@ -907,11 +903,7 @@ public final class SceneBuilder {
 							if ((maxX - minX + 1) * (maxZ - minZ + 1) >= 4) {
 								int minY = heightmap[level][minX][minZ];
 
-								Scene.addOcclude(4,
-										minX * 128, minY, minZ * 128,
-										maxX * 128 + 128, minY, maxZ * 128 + 128,
-										levelTop
-								);
+								Scene.addOcclude(4, minX * 128, minY, minZ * 128, maxX * 128 + 128, minY, maxZ * 128 + 128, levelTop);
 
 								for (int x0 = minX; x0 <= maxX; x0++) {
 									for (int z0 = minZ; z0 <= maxZ; z0++) {
@@ -953,9 +945,7 @@ public final class SceneBuilder {
 							}
 
 							for (/**/; maxTileZ < tileCountZ; maxTileZ++) {
-								if (((occludeFlags[plane][tileX][maxTileZ + 1])
-										& flagA)
-										== 0) {
+								if (((occludeFlags[plane][tileX][maxTileZ + 1]) & flagA) == 0) {
 									break;
 								}
 							}
@@ -985,11 +975,7 @@ public final class SceneBuilder {
 								int minY = ((heightmap[maxPlane][tileX][minTileZ]) - offsetY);
 								int maxY = (heightmap[minPlane][tileX][minTileZ]);
 
-								Scene.addOcclude(1,
-										tileX * 128, minY, minTileZ * 128,
-										tileX * 128, maxY, maxTileZ * 128 + 128,
-										topPlane
-								);
+								Scene.addOcclude(1, tileX * 128, minY, minTileZ * 128, tileX * 128, maxY, maxTileZ * 128 + 128, topPlane);
 
 								// remove flag a
 								for (int p = minPlane; p <= maxPlane; p++) {
@@ -1041,10 +1027,7 @@ public final class SceneBuilder {
 								int minY = ((heightmap[maxPlane][minTileX][tileZ]) - offsetY);
 								int maxY = (heightmap[minPlane][minTileX][tileZ]);
 
-								Scene.addOcclude(2,
-										minTileX * 128, minY, tileZ * 128,
-										maxTileX * 128 + 128, maxY, tileZ * 128,
-										topPlane);
+								Scene.addOcclude(2, minTileX * 128, minY, tileZ * 128, maxTileX * 128 + 128, maxY, tileZ * 128, topPlane);
 
 								for (int p = minPlane; p <= maxPlane; p++) {
 									for (int x = minTileX; x <= maxTileX; x++) {
@@ -1093,10 +1076,7 @@ public final class SceneBuilder {
 							if ((maxTileX - minTileX + 1) * (maxTileZ - minTileZ + 1) >= 4) {
 								int minY = (heightmap[plane][minTileX][minTileZ]);
 
-								Scene.addOcclude(4,
-										minTileX * 128, minY, minTileZ * 128,
-										maxTileX * 128 + 128, minY, maxTileZ * 128 + 128,
-										topPlane);
+								Scene.addOcclude(4, minTileX * 128, minY, minTileZ * 128, maxTileX * 128 + 128, minY, maxTileZ * 128 + 128, topPlane);
 
 								for (int x = minTileX; x <= maxTileX; x++) {
 									for (int z = minTileZ; z <= maxTileZ; z++) {
@@ -1235,7 +1215,7 @@ public final class SceneBuilder {
 			Model m = c.getModel(22, rotation, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addGroundDecoration(m, plane, tileX, tileY, averageY, info, bitset);
 
-			if (c.hasCollision && c.interactable) {
+			if (c.solid && c.interactable) {
 				collision.setBlocked(tileX, tileY);
 			}
 		} else if (type == 10 || type == 11) {
@@ -1262,37 +1242,37 @@ public final class SceneBuilder {
 				graph.addLocation(m, null, tileX, tileY, sizeY, sizeX, averageY, plane, yaw, bitset, info);
 			}
 
-			if (c.hasCollision) {
-				collision.setLoc(tileX, tileY, c.sizeX, c.sizeZ, rotation, c.isSolid);
+			if (c.solid) {
+				collision.setLoc(tileX, tileY, c.sizeX, c.sizeZ, rotation, c.blocksProjectiles);
 			}
 
-			if (c.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.animationIndex], index, 2, tileX, tileY, plane));
+			if (c.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.seqId], index, 2, tileX, tileY, plane));
 			}
 		} else if (type >= 12) {
 			Model m = c.getModel(type, rotation, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addLocation(m, null, tileX, tileY, 1, 1, averageY, plane, 0, bitset, info);
 
-			if (c.hasCollision) {
-				collision.setLoc(tileX, tileY, c.sizeX, c.sizeZ, rotation, c.isSolid);
+			if (c.solid) {
+				collision.setLoc(tileX, tileY, c.sizeX, c.sizeZ, rotation, c.blocksProjectiles);
 			}
 
-			if (c.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.animationIndex], index, 2, tileX, tileY, plane));
+			if (c.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.seqId], index, 2, tileX, tileY, plane));
 			}
 		} else if (type == 0) {
 			Model m = c.getModel(0, rotation, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWall(m, null, plane, tileX, tileY, averageY, bitset, info, WALL_ROTATION_TYPE1[rotation], 0);
 
-			if (c.hasCollision) {
-				collision.setWall(tileX, tileY, type, rotation, c.isSolid);
+			if (c.solid) {
+				collision.setWall(tileX, tileY, type, rotation, c.blocksProjectiles);
 			}
 		} else if (type == 1) {
 			Model m = c.getModel(1, rotation, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWall(m, null, plane, tileX, tileY, averageY, bitset, info, WALL_ROTATION_TYPE2[rotation], 0);
 
-			if (c.hasCollision) {
-				collision.setWall(tileX, tileY, type, rotation, c.isSolid);
+			if (c.solid) {
+				collision.setWall(tileX, tileY, type, rotation, c.blocksProjectiles);
 			}
 		} else if (type == 2) {
 			int nextRotation = rotation + 1 & 0x3;
@@ -1301,65 +1281,66 @@ public final class SceneBuilder {
 
 			graph.addWall(model1, model2, plane, tileX, tileY, averageY, bitset, info, WALL_ROTATION_TYPE1[rotation], WALL_ROTATION_TYPE1[nextRotation]);
 
-			if (c.hasCollision) {
-				collision.setWall(tileX, tileY, type, rotation, c.isSolid);
+			if (c.solid) {
+				collision.setWall(tileX, tileY, type, rotation, c.blocksProjectiles);
 			}
 		} else if (type == 3) {
 			Model m = c.getModel(3, rotation, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWall(m, null, plane, tileX, tileY, averageY, bitset, info, WALL_ROTATION_TYPE2[rotation], 0);
 
-			if (c.hasCollision) {
-				collision.setWall(tileX, tileY, type, rotation, c.isSolid);
+			if (c.solid) {
+				collision.setWall(tileX, tileY, type, rotation, c.blocksProjectiles);
 			}
 		} else if (type == 9) {
 			Model m = c.getModel(type, rotation, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addLocation(m, null, tileX, tileY, 1, 1, averageY, plane, 0, bitset, info);
 
-			if (c.hasCollision) {
-				collision.setLoc(tileX, tileY, c.sizeX, c.sizeZ, rotation, c.isSolid);
+			if (c.solid) {
+				collision.setLoc(tileX, tileY, c.sizeX, c.sizeZ, rotation, c.blocksProjectiles);
 			}
 		} else if (type == 4) {
 			Model m = c.getModel(4, 0, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWallDecoration(m, tileX, tileY, averageY, 0, 0, plane, bitset, info, WALL_ROTATION_TYPE1[rotation], rotation * 512);
 
-			if (c.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.animationIndex], index, 1, tileX, tileY, plane));
+			if (c.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.seqId], index, 1, tileX, tileY, plane));
 			}
 		} else if (type == 5) {
 			int thickness = 16;
 			int wallBitset = graph.getWallBitset(tileX, tileY, plane);
 
 			if (wallBitset > 0) {
-				thickness = LocType.get(wallBitset >> 14 & 0x7fff).thickness;
+				thickness = LocType.get(wallBitset >> 14 & 0x7fff).decorationPadding;
 			}
 
 			Model m = c.getModel(4, 0, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWallDecoration(m, tileX, tileY, averageY, WALL_DECO_ROT_SIZE_X_DIR[rotation] * thickness, WALL_DECO_ROT_SIZE_Y_DIR[rotation] * thickness, plane, bitset, info, WALL_ROTATION_TYPE1[rotation], rotation * 512);
 
-			if (c.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.animationIndex], index, 1, tileX, tileY, plane));
+			if (c.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.seqId], index, 1, tileX, tileY, plane));
 			}
 		} else if (type == 6) {
 			Model m = c.getModel(4, 0, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWallDecoration(m, tileX, tileY, averageY, 0, 0, plane, bitset, info, 0x100, rotation);
 
-			if (c.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.animationIndex], index, 1, tileX, tileY, plane));
+			if (c.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.seqId], index, 1, tileX, tileY, plane));
 			}
 		} else if (type == 7) {
 			Model m = c.getModel(4, 0, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWallDecoration(m, tileX, tileY, averageY, 0, 0, plane, bitset, info, 0x200, rotation);
 
-			if (c.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.animationIndex], index, 1, tileX, tileY, plane));
+			if (c.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.seqId], index, 1, tileX, tileY, plane));
 			}
 		} else if (type == 8) {
 			Model m = c.getModel(4, 0, southwestY, southeastY, northeastY, northwestY, -1);
 			graph.addWallDecoration(m, tileX, tileY, averageY, 0, 0, plane, bitset, info, 0x300, rotation);
 
-			if (c.animationIndex != -1) {
-				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.animationIndex], index, 1, tileX, tileY, plane));
+			if (c.seqId != -1) {
+				animatedLocations.push(new AnimatedLoc(SeqType.instances[c.seqId], index, 1, tileX, tileY, plane));
 			}
 		}
 	}
+
 }

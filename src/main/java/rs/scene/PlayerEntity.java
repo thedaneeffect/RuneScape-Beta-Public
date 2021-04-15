@@ -1,10 +1,7 @@
 package rs.scene;
 
 import rs.Game;
-import rs.data.IdkType;
-import rs.data.ObjType;
-import rs.data.SeqType;
-import rs.data.SpotAnimType;
+import rs.data.*;
 import rs.io.Buffer;
 import rs.util.Cache;
 import rs.util.Strings;

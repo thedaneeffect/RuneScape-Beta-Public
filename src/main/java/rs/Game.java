@@ -1,5 +1,6 @@
 package rs;
 
+import org.yaml.snakeyaml.Yaml;
 import rs.data.*;
 import rs.data.Component;
 import rs.io.Archive;
@@ -13,7 +14,7 @@ import rs.util.*;
 import rs.scene.*;
 import rs.scene.AnimatedLoc;
 import rs.scene.TemporaryLoc;
-import rs.scene.PlayerLoc;
+import rs.scene.TemporaryPlayerLoc;
 import net.burtleburtle.bob.rand.*;
 
 import java.awt.*;
@@ -21,6 +22,10 @@ import java.awt.event.*;
 import java.io.*;
 import java.math.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.zip.*;
 
 /**
@@ -307,6 +312,8 @@ public class Game extends GameShell {
 	public boolean characterDesignUpdate = false;
 	public boolean debug = false;
 
+	public static boolean DUMP_YAML = false;
+
 	/* Friends/Ignore List */
 	public int friendCount;
 	public String[] friendName = new String[100];
@@ -439,10 +446,6 @@ public class Game extends GameShell {
 				setLowMemory();
 			} else {
 				setHighMemory();
-			}
-
-			if (args.length > 3) {
-
 			}
 
 			game.initFrame(789, 532);
@@ -676,10 +679,54 @@ public class Game extends GameShell {
 		SeqFrame.load(models);
 	}
 
-	public void loadConfigs(Archive config) {
+	public void loadConfigs(Archive config) throws IOException {
 		drawProgress("Unpacking config", 85);
 		SeqType.load(config);
 		LocType.load(config);
+
+		if (DUMP_YAML) {
+			Path base = Paths.get(".");
+			Path models = base.resolve("models/");
+			Path locs = base.resolve("locs/");
+
+			if (!Files.exists(models)) {
+				Files.createDirectory(models);
+			}
+
+			if (!Files.exists(locs)) {
+				Files.createDirectory(locs);
+			}
+
+			Yaml yaml = new Yaml();
+			for (int i = 0; i < LocType.count; i++) {
+				LocType type = LocType.get(i);
+
+				if (type == null) {
+					continue;
+				}
+
+				try (OutputStream out = Files.newOutputStream(locs.resolve(String.format("%d.yaml", i)))) {
+					out.write(yaml.dump(type).getBytes(StandardCharsets.UTF_8));
+				}
+
+				if (type.modelIds != null) {
+					for (int modelId : type.modelIds) {
+						if (modelId == -1) {
+							continue;
+						}
+
+						try (OutputStream out = Files.newOutputStream(models.resolve(String.format("%d.yaml", modelId)))) {
+							Model model = new Model(modelId);
+							model.calculateBoundaries();
+							out.write(yaml.dump(model).getBytes(StandardCharsets.UTF_8));
+						}
+					}
+				} else {
+					System.out.println("Loc " + i + " has no models?");
+				}
+			}
+		}
+
 		FloType.unpack(config);
 		ObjType.load(config);
 		NPCType.load(config);
@@ -741,7 +788,7 @@ public class Game extends GameShell {
 		}
 
 		try {
-			loadArchiveChecksums();
+			//loadArchiveChecksums();
 
 			titleArchive = loadArchive("title screen", "title", archiveChecksum[1], 10);
 
@@ -801,7 +848,7 @@ public class Game extends GameShell {
 			int checksum = (int) crc32.getValue();
 
 			if (checksum != expectedChecksum) {
-				data = null;
+				//data = null;
 			}
 		}
 
@@ -2249,7 +2296,7 @@ public class Game extends GameShell {
 
 	public void updateTemporaryLocs() {
 		if (sceneState == 2) {
-			for (PlayerLoc l = (PlayerLoc) temporaryLocs.peekLast(); l != null; l = (PlayerLoc) temporaryLocs.getPrevious()) {
+			for (TemporaryPlayerLoc l = (TemporaryPlayerLoc) temporaryLocs.peekLast(); l != null; l = (TemporaryPlayerLoc) temporaryLocs.getPrevious()) {
 				if (clientclock >= l.lastCycle) {
 					addLoc(l.locIndex, l.level, l.tileX, l.tileZ, l.type, l.classtype, l.rotation);
 					l.unlink();
@@ -3804,7 +3851,7 @@ public class Game extends GameShell {
 
 				if (index != 0) {
 					index = index >> 14 & 0x7fff;
-					int mapfunction = LocType.get(index).mapfunction;
+					int mapfunction = LocType.get(index).mapfunctionIcon;
 
 					if (mapfunction >= mapfunctions.length) {
 						continue;
@@ -3839,8 +3886,8 @@ public class Game extends GameShell {
 			int locIndex = bitset >> 14 & 0x7fff;
 			LocType c = LocType.get(locIndex);
 
-			if (c.mapfunction != -1) {
-				Sprite s = minimapFunctions[c.mapfunction];
+			if (c.mapfunctionIcon != -1) {
+				Sprite s = minimapFunctions[c.mapfunctionIcon];
 
 				if (s != null) {
 					int x0 = ((c.sizeX * 4) - s.width) / 2;
@@ -3944,8 +3991,8 @@ public class Game extends GameShell {
 				int locIndex = bitset >> 14 & 0x7fff;
 				LocType c = LocType.get(locIndex);
 
-				if (c.mapscene != -1) {
-					IndexedSprite mapscene = mapscenes[c.mapscene];
+				if (c.mapsceneIcon != -1) {
+					IndexedSprite mapscene = mapscenes[c.mapsceneIcon];
 
 					if (mapscene != null) {
 						int dx = ((c.sizeX * 4 - mapscene.width) / 2);
@@ -5332,8 +5379,8 @@ public class Game extends GameShell {
 					graph.removeWall(tileX, tileZ, level);
 					LocType c = LocType.get(lastIndex);
 
-					if (c.hasCollision) {
-						collisions[level].removeWall(tileX, tileZ, info & 0x1F, info >> 6, c.isSolid);
+					if (c.solid) {
+						collisions[level].removeWall(tileX, tileZ, info & 0x1F, info >> 6, c.blocksProjectiles);
 					}
 				}
 
@@ -5345,8 +5392,8 @@ public class Game extends GameShell {
 					graph.removeLocations(tileX, tileZ, level);
 					LocType c = LocType.get(lastIndex);
 
-					if (c.hasCollision) {
-						collisions[level].removeLoc(tileX, tileZ, c.sizeX, c.sizeZ, info >> 6, c.isSolid);
+					if (c.solid) {
+						collisions[level].removeLoc(tileX, tileZ, c.sizeX, c.sizeZ, info >> 6, c.blocksProjectiles);
 					}
 				}
 
@@ -5354,7 +5401,7 @@ public class Game extends GameShell {
 					graph.removeGroundDecoration(tileX, tileZ, level);
 					LocType c = LocType.get(lastIndex);
 
-					if (c.hasCollision && c.interactable) {
+					if (c.solid && c.interactable) {
 						collisions[level].removeBlock(tileX, tileZ);
 					}
 				}
@@ -5591,8 +5638,8 @@ public class Game extends GameShell {
 			}
 
 			if (p != null) {
-				temporaryLocs.push(new PlayerLoc(-1, x, z, currentLevel, locType, locRotation, locClass, locStartCycle + clientclock));
-				temporaryLocs.push(new PlayerLoc(locIndex, x, z, currentLevel, locType, locRotation, locClass, locEndCycle + clientclock));
+				temporaryLocs.push(new TemporaryPlayerLoc(-1, x, z, currentLevel, locType, locRotation, locClass, locStartCycle + clientclock));
+				temporaryLocs.push(new TemporaryPlayerLoc(locIndex, x, z, currentLevel, locType, locRotation, locClass, locEndCycle + clientclock));
 
 				int southwestY = levelHeightMaps[currentLevel][x][z];
 				int southeastY = levelHeightMaps[currentLevel][x + 1][z];

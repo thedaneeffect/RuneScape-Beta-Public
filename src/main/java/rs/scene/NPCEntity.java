@@ -1,5 +1,6 @@
 package rs.scene;
 
+import rs.data.Model;
 import rs.data.NPCType;
 import rs.data.SeqType;
 import rs.data.SpotAnimType;

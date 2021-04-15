@@ -6,7 +6,6 @@ import rs.media.IndexedFont;
 import rs.media.Sprite;
 import rs.util.Cache;
 import rs.util.Strings;
-import rs.scene.Model;
 
 public class Component {
 

@@ -5,28 +5,25 @@ public final class CollisionMap {
 	public static final int OPEN = 0x0;
 	public static final int CLOSED = 0xFFFFFF;
 
-	public static final int WALL_NORTHWEST = 0x1;
-	public static final int WALL_NORTH = 0x2;
-	public static final int WALL_NORTHEAST = 0x4;
-	public static final int WALL_EAST = 0x8;
-	public static final int WALL_SOUTHEAST = 0x10;
-	public static final int WALL_SOUTH = 0x20;
-	public static final int WALL_SOUTHWEST = 0x40;
-	public static final int WALL_WEST = 0x80;
-
-	public static final int OCCUPIED_TILE = 0x100;
-
-	public static final int BLOCKED_NORTHWEST = 0x200;
-	public static final int BLOCKED_NORTH = 0x400;
-	public static final int BLOCKED_NORTHEAST = 0x800;
-	public static final int BLOCKED_EAST = 0x1000;
-	public static final int BLOCKED_SOUTHEAST = 0x2000;
-	public static final int BLOCKED_SOUTH = 0x4000;
-	public static final int BLOCKED_SOUTHWEST = 0x8000;
-	public static final int BLOCKED_WEST = 0x10000;
-
-	public static final int SOLID = 0x20000;
-	public static final int BLOCKED_TILE = 0x200000;
+	public static final int BLOCK_NW = 0x1;
+	public static final int BLOCK_N = 0x2;
+	public static final int BLOCK_NE = 0x4;
+	public static final int BLOCK_E = 0x8;
+	public static final int BLOCK_SE = 0x10;
+	public static final int BLOCK_S = 0x20;
+	public static final int BLOCK_SW = 0x40;
+	public static final int BLOCK_W = 0x80;
+	public static final int BLOCK = 0x100;
+	public static final int BLOCK_PROJECTILE_NW = 0x200;
+	public static final int BLOCK_PROJECTILE_N = 0x400;
+	public static final int BLOCK_PROJECTILE_NE = 0x800;
+	public static final int BLOCK_PROJECTILE_E = 0x1000;
+	public static final int BLOCK_PROJECTILE_SE = 0x2000;
+	public static final int BLOCK_PROJECTILE_S = 0x4000;
+	public static final int BLOCK_PROJECTILE_SW = 0x8000;
+	public static final int BLOCK_PROJECTILE_W = 0x10000;
+	public static final int BLOCK_PROJECTILE = 0x20000;
+	public static final int NO_WALK = 0x200000;
 
 	public int wide;
 	public int tall;
@@ -51,78 +48,78 @@ public final class CollisionMap {
 		}
 	}
 
-	public void setWall(int x, int z, int type, int rotation, boolean blocks) {
+	public void setWall(int x, int z, int type, int rotation, boolean blockProjectiles) {
 		if (type == 0) {
 			if (rotation == 0) {
-				add(x, z, WALL_WEST);
-				add(x - 1, z, WALL_EAST);
+				add(x, z, BLOCK_W);
+				add(x - 1, z, BLOCK_E);
 			}
 			if (rotation == 1) {
-				add(x, z, WALL_NORTH);
-				add(x, z + 1, WALL_SOUTH);
+				add(x, z, BLOCK_N);
+				add(x, z + 1, BLOCK_S);
 			}
 			if (rotation == 2) {
-				add(x, z, WALL_EAST);
-				add(x + 1, z, WALL_WEST);
+				add(x, z, BLOCK_E);
+				add(x + 1, z, BLOCK_W);
 			}
 			if (rotation == 3) {
-				add(x, z, WALL_SOUTH);
-				add(x, z - 1, WALL_NORTH);
+				add(x, z, BLOCK_S);
+				add(x, z - 1, BLOCK_N);
 			}
 		}
 		if (type == 1 || type == 3) {
 			if (rotation == 0) {
-				add(x, z, WALL_NORTHWEST);
-				add(x - 1, z + 1, WALL_SOUTHEAST);
+				add(x, z, BLOCK_NW);
+				add(x - 1, z + 1, BLOCK_SE);
 			}
 			if (rotation == 1) {
-				add(x, z, WALL_NORTHEAST);
-				add(x + 1, z + 1, WALL_SOUTHWEST);
+				add(x, z, BLOCK_NE);
+				add(x + 1, z + 1, BLOCK_SW);
 			}
 			if (rotation == 2) {
-				add(x, z, WALL_SOUTHEAST);
-				add(x + 1, z - 1, WALL_NORTHWEST);
+				add(x, z, BLOCK_SE);
+				add(x + 1, z - 1, BLOCK_NW);
 			}
 			if (rotation == 3) {
-				add(x, z, WALL_SOUTHWEST);
-				add(x - 1, z - 1, WALL_NORTHEAST);
+				add(x, z, BLOCK_SW);
+				add(x - 1, z - 1, BLOCK_NE);
 			}
 		}
 		if (type == 2) {
 			if (rotation == 0) {
-				add(x, z, WALL_WEST | WALL_NORTH);
-				add(x - 1, z, WALL_EAST);
-				add(x, z + 1, WALL_SOUTH);
+				add(x, z, BLOCK_W | BLOCK_N);
+				add(x - 1, z, BLOCK_E);
+				add(x, z + 1, BLOCK_S);
 			}
 			if (rotation == 1) {
-				add(x, z, WALL_EAST | WALL_NORTH);
-				add(x, z + 1, WALL_SOUTH);
-				add(x + 1, z, WALL_WEST);
+				add(x, z, BLOCK_E | BLOCK_N);
+				add(x, z + 1, BLOCK_S);
+				add(x + 1, z, BLOCK_W);
 			}
 			if (rotation == 2) {
-				add(x, z, WALL_SOUTH | WALL_EAST);
-				add(x + 1, z, WALL_WEST);
-				add(x, z - 1, WALL_NORTH);
+				add(x, z, BLOCK_S | BLOCK_E);
+				add(x + 1, z, BLOCK_W);
+				add(x, z - 1, BLOCK_N);
 			}
 			if (rotation == 3) {
-				add(x, z, WALL_WEST | WALL_SOUTH);
-				add(x, z - 1, WALL_NORTH);
-				add(x - 1, z, WALL_EAST);
+				add(x, z, BLOCK_W | BLOCK_S);
+				add(x, z - 1, BLOCK_N);
+				add(x - 1, z, BLOCK_E);
 			}
 		}
-		if (blocks) {
+		if (blockProjectiles) {
 			if (type == 0) {
 				if (rotation == 0) {
-					add(x, z, 65536);
-					add(x - 1, z, 4096);
+					add(x, z, 0x10000);
+					add(x - 1, z, 0x1000);
 				}
 				if (rotation == 1) {
-					add(x, z, 1024);
-					add(x, z + 1, 16384);
+					add(x, z, 0x400);
+					add(x, z + 1, 0x4000);
 				}
 				if (rotation == 2) {
-					add(x, z, 4096);
-					add(x + 1, z, 65536);
+					add(x, z, 0x1000);
+					add(x + 1, z, 0x10000);
 				}
 				if (rotation == 3) {
 					add(x, z, 16384);
@@ -172,11 +169,11 @@ public final class CollisionMap {
 		}
 	}
 
-	public void setLoc(int tileX, int tileY, int sizeX, int sizeY, int rotation, boolean solid) {
-		int flag = OCCUPIED_TILE;
+	public void setLoc(int tileX, int tileY, int sizeX, int sizeY, int rotation, boolean blocksProjectiles) {
+		int flag = BLOCK;
 
-		if (solid) {
-			flag += SOLID;
+		if (blocksProjectiles) {
+			flag += BLOCK_PROJECTILE;
 		}
 
 		if (rotation == 1 || rotation == 3) {
@@ -197,7 +194,7 @@ public final class CollisionMap {
 	}
 
 	public void setBlocked(int x, int y) {
-		flags[x][y] |= BLOCKED_TILE;
+		flags[x][y] |= NO_WALK;
 	}
 
 	private void add(int x, int y, int flag) {
@@ -207,60 +204,60 @@ public final class CollisionMap {
 	public void removeWall(int tileX, int tileZ, int type, int rotation, boolean blocks) {
 		if (type == 0) {
 			if (rotation == 0) {
-				remove(tileX, tileZ, WALL_WEST);
-				remove(tileX - 1, tileZ, WALL_EAST);
+				remove(tileX, tileZ, BLOCK_W);
+				remove(tileX - 1, tileZ, BLOCK_E);
 			}
 			if (rotation == 1) {
-				remove(tileX, tileZ, WALL_NORTH);
-				remove(tileX, tileZ + 1, WALL_SOUTH);
+				remove(tileX, tileZ, BLOCK_N);
+				remove(tileX, tileZ + 1, BLOCK_S);
 			}
 			if (rotation == 2) {
-				remove(tileX, tileZ, WALL_EAST);
-				remove(tileX + 1, tileZ, WALL_WEST);
+				remove(tileX, tileZ, BLOCK_E);
+				remove(tileX + 1, tileZ, BLOCK_W);
 			}
 			if (rotation == 3) {
-				remove(tileX, tileZ, WALL_SOUTH);
-				remove(tileX, tileZ - 1, WALL_NORTH);
+				remove(tileX, tileZ, BLOCK_S);
+				remove(tileX, tileZ - 1, BLOCK_N);
 			}
 		}
 		if (type == 1 || type == 3) {
 			if (rotation == 0) {
-				remove(tileX, tileZ, WALL_NORTHWEST);
-				remove(tileX - 1, tileZ + 1, WALL_SOUTHEAST);
+				remove(tileX, tileZ, BLOCK_NW);
+				remove(tileX - 1, tileZ + 1, BLOCK_SE);
 			}
 			if (rotation == 1) {
-				remove(tileX, tileZ, WALL_NORTHEAST);
-				remove(tileX + 1, tileZ + 1, WALL_SOUTHWEST);
+				remove(tileX, tileZ, BLOCK_NE);
+				remove(tileX + 1, tileZ + 1, BLOCK_SW);
 			}
 			if (rotation == 2) {
-				remove(tileX, tileZ, WALL_SOUTHEAST);
-				remove(tileX + 1, tileZ - 1, WALL_NORTHWEST);
+				remove(tileX, tileZ, BLOCK_SE);
+				remove(tileX + 1, tileZ - 1, BLOCK_NW);
 			}
 			if (rotation == 3) {
-				remove(tileX, tileZ, WALL_SOUTHWEST);
-				remove(tileX - 1, tileZ - 1, WALL_NORTHEAST);
+				remove(tileX, tileZ, BLOCK_SW);
+				remove(tileX - 1, tileZ - 1, BLOCK_NE);
 			}
 		}
 		if (type == 2) {
 			if (rotation == 0) {
-				remove(tileX, tileZ, WALL_WEST | WALL_NORTH);
-				remove(tileX - 1, tileZ, WALL_EAST);
-				remove(tileX, tileZ + 1, WALL_SOUTH);
+				remove(tileX, tileZ, BLOCK_W | BLOCK_N);
+				remove(tileX - 1, tileZ, BLOCK_E);
+				remove(tileX, tileZ + 1, BLOCK_S);
 			}
 			if (rotation == 1) {
-				remove(tileX, tileZ, WALL_EAST | WALL_NORTH);
-				remove(tileX, tileZ + 1, WALL_SOUTH);
-				remove(tileX + 1, tileZ, WALL_WEST);
+				remove(tileX, tileZ, BLOCK_E | BLOCK_N);
+				remove(tileX, tileZ + 1, BLOCK_S);
+				remove(tileX + 1, tileZ, BLOCK_W);
 			}
 			if (rotation == 2) {
-				remove(tileX, tileZ, WALL_SOUTH | WALL_EAST);
-				remove(tileX + 1, tileZ, WALL_WEST);
-				remove(tileX, tileZ - 1, WALL_NORTH);
+				remove(tileX, tileZ, BLOCK_S | BLOCK_E);
+				remove(tileX + 1, tileZ, BLOCK_W);
+				remove(tileX, tileZ - 1, BLOCK_N);
 			}
 			if (rotation == 3) {
-				remove(tileX, tileZ, WALL_WEST | WALL_SOUTH);
-				remove(tileX, tileZ - 1, WALL_NORTH);
-				remove(tileX - 1, tileZ, WALL_EAST);
+				remove(tileX, tileZ, BLOCK_W | BLOCK_S);
+				remove(tileX, tileZ - 1, BLOCK_N);
+				remove(tileX - 1, tileZ, BLOCK_E);
 			}
 		}
 		if (blocks) {
@@ -325,11 +322,11 @@ public final class CollisionMap {
 		}
 	}
 
-	public void removeLoc(int tileX, int tileY, int sizeX, int sizeY, int rotation, boolean solid) {
-		int flag = OCCUPIED_TILE;
+	public void removeLoc(int tileX, int tileY, int sizeX, int sizeY, int rotation, boolean blockProjectiles) {
+		int flag = BLOCK;
 
-		if (solid) {
-			flag += SOLID;
+		if (blockProjectiles) {
+			flag += BLOCK_PROJECTILE;
 		}
 
 		if (rotation == 1 || rotation == 3) {
@@ -354,7 +351,7 @@ public final class CollisionMap {
 	}
 
 	public void removeBlock(int x, int y) {
-		flags[x][y] &= 0xFFFFFF - BLOCKED_TILE;
+		flags[x][y] &= 0xFFFFFF - NO_WALK;
 	}
 
 	public boolean method101(int x0, int y0, int y1, int x1, int type, int direction) {
@@ -463,16 +460,16 @@ public final class CollisionMap {
 		}
 
 		if (type == 9) {
-			if (x0 == x1 && y0 == y1 + 1 && (flags[x0][y0] & WALL_SOUTH) == 0) {
+			if (x0 == x1 && y0 == y1 + 1 && (flags[x0][y0] & BLOCK_S) == 0) {
 				return true;
 			}
-			if (x0 == x1 && y0 == y1 - 1 && (flags[x0][y0] & WALL_NORTH) == 0) {
+			if (x0 == x1 && y0 == y1 - 1 && (flags[x0][y0] & BLOCK_N) == 0) {
 				return true;
 			}
-			if (x0 == x1 - 1 && y0 == y1 && (flags[x0][y0] & WALL_EAST) == 0) {
+			if (x0 == x1 - 1 && y0 == y1 && (flags[x0][y0] & BLOCK_E) == 0) {
 				return true;
 			}
-			if (x0 == x1 + 1 && y0 == y1 && (flags[x0][y0] & WALL_WEST) == 0) {
+			if (x0 == x1 + 1 && y0 == y1 && (flags[x0][y0] & BLOCK_W) == 0) {
 				return true;
 			}
 		}
@@ -490,47 +487,47 @@ public final class CollisionMap {
 			}
 
 			if (direction == 0) {
-				if (x0 == x1 + 1 && y0 == y1 && (flags[x0][y0] & WALL_WEST) == 0) {
+				if (x0 == x1 + 1 && y0 == y1 && (flags[x0][y0] & BLOCK_W) == 0) {
 					return true;
 				}
-				if (x0 == x1 && y0 == y1 - 1 && (flags[x0][y0] & WALL_NORTH) == 0) {
+				if (x0 == x1 && y0 == y1 - 1 && (flags[x0][y0] & BLOCK_N) == 0) {
 					return true;
 				}
 			} else if (direction == 1) {
-				if (x0 == x1 - 1 && y0 == y1 && (flags[x0][y0] & WALL_EAST) == 0) {
+				if (x0 == x1 - 1 && y0 == y1 && (flags[x0][y0] & BLOCK_E) == 0) {
 					return true;
 				}
-				if (x0 == x1 && y0 == y1 - 1 && (flags[x0][y0] & WALL_NORTH) == 0) {
+				if (x0 == x1 && y0 == y1 - 1 && (flags[x0][y0] & BLOCK_N) == 0) {
 					return true;
 				}
 			} else if (direction == 2) {
-				if (x0 == x1 - 1 && y0 == y1 && (flags[x0][y0] & WALL_EAST) == 0) {
+				if (x0 == x1 - 1 && y0 == y1 && (flags[x0][y0] & BLOCK_E) == 0) {
 					return true;
 				}
-				if (x0 == x1 && y0 == y1 + 1 && (flags[x0][y0] & WALL_SOUTH) == 0) {
+				if (x0 == x1 && y0 == y1 + 1 && (flags[x0][y0] & BLOCK_S) == 0) {
 					return true;
 				}
 			} else if (direction == 3) {
-				if (x0 == x1 + 1 && y0 == y1 && (flags[x0][y0] & WALL_WEST) == 0) {
+				if (x0 == x1 + 1 && y0 == y1 && (flags[x0][y0] & BLOCK_W) == 0) {
 					return true;
 				}
-				if (x0 == x1 && y0 == y1 + 1 && (flags[x0][y0] & WALL_SOUTH) == 0) {
+				if (x0 == x1 && y0 == y1 + 1 && (flags[x0][y0] & BLOCK_S) == 0) {
 					return true;
 				}
 			}
 		}
 
 		if (type == 8) {
-			if (x0 == x1 && y0 == y1 + 1 && (flags[x0][y0] & WALL_SOUTH) == 0) {
+			if (x0 == x1 && y0 == y1 + 1 && (flags[x0][y0] & BLOCK_S) == 0) {
 				return true;
 			}
-			if (x0 == x1 && y0 == y1 - 1 && (flags[x0][y0] & WALL_NORTH) == 0) {
+			if (x0 == x1 && y0 == y1 - 1 && (flags[x0][y0] & BLOCK_N) == 0) {
 				return true;
 			}
-			if (x0 == x1 - 1 && y0 == y1 && (flags[x0][y0] & WALL_EAST) == 0) {
+			if (x0 == x1 - 1 && y0 == y1 && (flags[x0][y0] & BLOCK_E) == 0) {
 				return true;
 			}
-			if (x0 == x1 + 1 && y0 == y1 && (flags[x0][y0] & WALL_WEST) == 0) {
+			if (x0 == x1 + 1 && y0 == y1 && (flags[x0][y0] & BLOCK_W) == 0) {
 				return true;
 			}
 		}
@@ -545,18 +542,18 @@ public final class CollisionMap {
 			return true;
 		}
 
-		if (srcX == dstX - 1 && srcY >= dstY && srcY <= maxY && (flags[srcX][srcY] & WALL_EAST) == 0 && (faceflags & 0x8) == 0) {
+		if (srcX == dstX - 1 && srcY >= dstY && srcY <= maxY && (flags[srcX][srcY] & BLOCK_E) == 0 && (faceflags & 0x8) == 0) {
 			return true;
 		}
 
-		if (srcX == maxX + 1 && srcY >= dstY && srcY <= maxY && ((flags[srcX][srcY] & WALL_WEST) == 0) && (faceflags & 0x2) == 0) {
+		if (srcX == maxX + 1 && srcY >= dstY && srcY <= maxY && ((flags[srcX][srcY] & BLOCK_W) == 0) && (faceflags & 0x2) == 0) {
 			return true;
 		}
 
-		if (srcY == dstY - 1 && srcX >= dstX && srcX <= maxX && (flags[srcX][srcY] & WALL_NORTH) == 0 && (faceflags & 0x4) == 0) {
+		if (srcY == dstY - 1 && srcX >= dstX && srcX <= maxX && (flags[srcX][srcY] & BLOCK_N) == 0 && (faceflags & 0x4) == 0) {
 			return true;
 		}
 
-		return srcY == maxY + 1 && srcX >= dstX && srcX <= maxX && ((flags[srcX][srcY] & WALL_SOUTH) == 0) && (faceflags & 0x1) == 0;
+		return srcY == maxY + 1 && srcX >= dstX && srcX <= maxX && ((flags[srcX][srcY] & BLOCK_S) == 0) && (faceflags & 0x1) == 0;
 	}
 }

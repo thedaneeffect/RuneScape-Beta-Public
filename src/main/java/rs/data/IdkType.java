@@ -2,7 +2,6 @@ package rs.data;
 
 import rs.io.Archive;
 import rs.io.Buffer;
-import rs.scene.Model;
 
 public class IdkType {
 

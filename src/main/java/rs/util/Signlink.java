@@ -35,6 +35,8 @@ public final class Signlink implements Runnable {
 
 			File path = findCachePath();
 
+			System.out.println(path.getAbsolutePath());
+
 			for (; ; ) {
 				if (loadreq != null) {
 					loadbuf = null;
